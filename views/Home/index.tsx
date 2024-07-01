@@ -2,7 +2,7 @@ import s from './home.module.scss'
 
 import { INFOFILMES } from './array'
 
-import { Video } from '@/componentes'
+import { Ingressos, Video } from '@/componentes'
 
 const Home = () => {
   return (
@@ -44,6 +44,7 @@ const Home = () => {
           </div>
         </div>
       </main>
+      <Ingressos />
     </>
   )
 }
