@@ -1,0 +1,99 @@
+.areaBanner {
+  position: relative;
+  background: linear-gradient(0deg, #000 10%, #00000000);
+  transition: all .4s;
+
+  .banner {
+    height: 700px;
+    object-fit: cover;
+    object-position: right;
+    z-index: -1;
+    position: relative;
+  }
+
+  .flex {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    flex-direction: column;
+    gap: 20px;
+    margin-bottom: 20px;
+
+    img {
+      padding: 0 20px;
+
+      @include media(lg) {
+        max-width: 470px;
+      }
+    }
+
+    h1 {
+      padding: 0 20px;
+      margin-bottom: 20px;
+      font-family: Supra-Mediummezzo, serif;
+      color: $primary-lingh-color;
+      font-size: 2.1rem;
+      text-align: center;
+    }
+  }
+}
+
+.infoFilme {
+  background-color: $primary-dark-color;
+  color: $primary-lingh-color;
+
+  .gridCartaz {
+    padding: 90px 0 45px;
+    display: grid;
+    gap: 45px;
+    align-items: center;
+
+    @include media(lg) {
+      grid-template-columns: 1fr 2.2fr;
+    }
+  }
+
+  .textSinopse {
+    margin-bottom: 3.5rem;
+    h2 {
+      font-family: 'Supra-XLightMezzo', serif;
+      font-size: 2.2rem;
+      color: $secondary-colors;
+      margin-bottom: 10px;
+    }
+
+    p {
+      font-family: 'Supra-XLightExtended', serif;
+      font-size: 1.8rem;
+    }
+  }
+
+  .gridInfo{
+    display: grid;
+    gap: 31px;
+    padding-bottom: 55px;
+
+    @include media(lg){
+      grid-template-columns: 0.5fr 1fr 1fr 1fr;
+      padding-bottom: 90px;
+    }
+
+    .textInfo {
+      h2 {
+        font-family: 'Supra-XLightMezzo', serif;
+        font-size: 2.2rem;
+        color: $secondary-colors;
+        margin-bottom: 10px;
+      }
+  
+      p {
+        font-family: 'Supra-XLightExtended', serif;
+        font-size: 1.6rem;
+      }
+    }
+  }
+}
