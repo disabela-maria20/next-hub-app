@@ -61,12 +61,12 @@
   }
 
   .areaCinema {
+    border-bottom: 1px solid $primary-color-gray;
+    padding: 45px 0;
     @include media(lg) {
       display: grid;
       grid-template-columns: .5fr 1fr 0.1fr;
       align-items: center;
-      margin: 45px 0;
-
     }
 
     .gridCinemas {
@@ -74,7 +74,6 @@
       gap: 20px;
       align-items: center;
       justify-content: space-between;
-      padding: 20px 0;
 
       @include media(lg) {
         padding: 0;
@@ -84,7 +83,7 @@
         text-transform: capitalize;
         color: $secondary-colors;
         font-weight: 700;
-        font-family: Supra-Thin, serif;
+        font-family: Supra-XLightMezzo, serif;
         margin-bottom: 5px;
       }
 

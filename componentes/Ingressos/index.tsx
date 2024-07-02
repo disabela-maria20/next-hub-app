@@ -1,18 +1,66 @@
+'use client'
+
+import { useState } from 'react'
 import { FaMapMarkerAlt } from 'react-icons/fa'
 
 import s from './ingressos.module.scss'
 
+import { IEstados } from '@/request/models'
+import { Sessoes } from '@/request/services'
+import { useQuery } from '@tanstack/react-query'
+
 const Ingressos = () => {
+  const [estadoSelecionado, setEstadoSelecionado] = useState<string>('')
+  const [cidades, setCidades] = useState<string[]>([])
+
+  const estadoCidade = useQuery<IEstados[], Error>({
+    queryKey: ['todos'],
+    queryFn: async () => {
+      return await Sessoes.Estados()
+    }
+  })
+  if (!estadoCidade.data) return null
+
+  const estadosUnicos = Array.from(
+    new Set(estadoCidade.data.map((data) => data.ESTADO))
+  ).sort((a, b) => a.localeCompare(b))
+
+  const handleEstadoChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const estado = event.target.value
+    setEstadoSelecionado(estado)
+
+    const cidadesFiltradas = estadoCidade.data
+      .filter((ec) => ec.ESTADO === estado)
+      .map((ec) => ec.CIDADE)
+      .sort((a, b) => a.localeCompare(b))
+
+    setCidades(cidadesFiltradas)
+  }
+
   return (
     <section className={s.AreaIngresso}>
       <div className="container">
         <h2>Comprar Ingressos</h2>
         <div className={s.gridIngressos}>
-          <select>
-            <option value="">Escolha a cidade</option>
+          <select value={estadoSelecionado} onChange={handleEstadoChange}>
+            <option disabled value="">
+              Estado
+            </option>
+            {estadosUnicos.map((estado) => (
+              <option key={estado} value={estado}>
+                {estado}
+              </option>
+            ))}
           </select>
           <select>
-            <option>Escolha o cinema</option>
+            <option disabled value="">
+              Cidade
+            </option>
+            {cidades.map((cidade, index) => (
+              <option key={index} value={cidade}>
+                {cidade}
+              </option>
+            ))}
           </select>
         </div>
         <h3 className={s.tituloData}>Selecione a data</h3>
