@@ -9,9 +9,9 @@ const nextConfig = {
     prependData: `@import 'abstracts/_index.scss';`
   },
   env: {
-    ENDPOINT_SESSOES: process.env.ENDPOINT_SESSOES,
-    ENDPOINT_ESTADOS_CIDADES: process.env.ENDPOINT_ESTADOS_CIDADES,
-    FILME_ID: process.env.FILME_ID
+    API_TOKEN: process.env.API_TOKEN,
+    API_URL: process.env.API_URL,
+    API_SLUG: process.env.API_SLUG
   }
   // distDir: 'build',
   // trailingSlash: true

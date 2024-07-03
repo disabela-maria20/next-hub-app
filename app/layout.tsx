@@ -1,7 +1,8 @@
 import type { Metadata } from 'next'
 
 import '@/styles/sass/globals.scss'
-import { Provider } from '@/request/Config'
+import { LocationProvider } from '@/utils/Context/Location'
+import { Provider } from '@/utils/Context/Query'
 
 export const metadata: Metadata = {
   title: 'Create Next App',
@@ -16,7 +17,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <Provider>{children}</Provider>
+        <LocationProvider>
+          <Provider>{children}</Provider>
+        </LocationProvider>
       </body>
     </html>
   )

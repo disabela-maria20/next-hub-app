@@ -1,100 +1,244 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client'
 
-import { useState } from 'react'
+import { ChangeEvent, useEffect, useState } from 'react'
 import { FaMapMarkerAlt } from 'react-icons/fa'
+import ReactLoading from 'react-loading'
 
 import s from './ingressos.module.scss'
 
-import { IEstados } from '@/request/models'
+import {
+  ESTADOS,
+  Locais,
+  Sessions,
+  SessionsArrayResponse
+} from '@/request/models'
 import { Sessoes } from '@/request/services'
+import { useLocationContext } from '@/utils/Context/Location'
+import { useFormatarData } from '@/utils/hooks/useFormatarData'
 import { useQuery } from '@tanstack/react-query'
 
 const Ingressos = () => {
-  const [estadoSelecionado, setEstadoSelecionado] = useState<string>('')
-  const [cidades, setCidades] = useState<string[]>([])
+  const [filteredSessions, setFilteredSessions] = useState<Sessions[]>([])
+  const [selectedDate, setSelectedDate] = useState<string | null>(null)
 
-  const estadoCidade = useQuery<IEstados[], Error>({
-    queryKey: ['todos'],
+  const [state, setState] = useState<string>('')
+  const [cities, setCities] = useState<string>('')
+
+  const { formatDia, formatMes, formatDiaDaSemana } = useFormatarData()
+  const { location, loading, locationArea } = useLocationContext()
+
+  const localFilmes = useQuery<Locais[], Error>({
+    queryKey: ['estados'],
     queryFn: async () => {
-      return await Sessoes.Estados()
+      const response = await Sessoes.getLocation(process.env.API_SLUG as string)
+      return response
     }
   })
-  if (!estadoCidade.data) return null
 
-  const estadosUnicos = Array.from(
-    new Set(estadoCidade.data.map((data) => data.ESTADO))
-  ).sort((a, b) => a.localeCompare(b))
-
-  const handleEstadoChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    const estado = event.target.value
-    setEstadoSelecionado(estado)
-
-    const cidadesFiltradas = estadoCidade.data
-      .filter((ec) => ec.ESTADO === estado)
-      .map((ec) => ec.CIDADE)
-      .sort((a, b) => a.localeCompare(b))
-
-    setCidades(cidadesFiltradas)
+  function obterNomeEstado(sigla: string): string {
+    return ESTADOS[sigla] || 'Estado não encontrado'
   }
 
+  const programacao = useQuery<SessionsArrayResponse, Error>({
+    queryKey: ['programacao', cities],
+    queryFn: async () => {
+      const response = await Sessoes.getSession(
+        process.env.API_SLUG as string,
+        cities
+      )
+      return response
+    },
+    enabled: !!cities
+  })
+  const calculateDistance = (lat2: number, lon2: number) => {
+    const lat1 = location.latitude
+    const lon1 = location.longitude
+
+    if (lat1 === 0 && lon1 === 0) {
+      return 0
+    }
+
+    const R = 6371
+    const dLat = ((lat2 - lat1) * Math.PI) / 180
+    const dLon = ((lon2 - lon1) * Math.PI) / 180
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos((lat1 * Math.PI) / 180) *
+        Math.cos((lat2 * Math.PI) / 180) *
+        Math.sin(dLon / 2) *
+        Math.sin(dLon / 2)
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+    const distanceInKilometers = R * c
+
+    return distanceInKilometers
+  }
+
+  const groupSessoes = (sessao: Sessions[] | undefined) => {
+    const groupedSessions: { [key: string]: Sessions } = {}
+
+    sessao?.map((sessionsArray) => {
+      // @ts-ignore: Unreachable code error
+      sessionsArray?.map(
+        // @ts-ignore: Unreachable code error
+        ({ theaterName, hour: sessionHour, link: links, ...rest }) => {
+          const key = `${theaterName}`
+          const distance = calculateDistance(Number(rest.lat), Number(rest.lng))
+          const stateName = obterNomeEstado(rest.state)
+          if (!groupedSessions[key]) {
+            // @ts-ignore: Unreachable code error
+            groupedSessions[key] = {
+              theaterName,
+              hour: sessionHour,
+              // @ts-ignore: Unreachable code error
+              hours: [],
+              // @ts-ignore: Unreachable code error
+              distance,
+              // @ts-ignore: Unreachable code error
+              stateName,
+              ...rest
+            }
+          }
+          // @ts-ignore: Unreachable code error
+          groupedSessions[key].hours.push({ hour: sessionHour, links: links })
+        }
+      )
+    })
+
+    const groupedSessionsArray = Object.values(groupedSessions)
+
+    const sortedSessionsByDistance = groupedSessionsArray.sort((a, b) => {
+      return a.distance - b.distance
+    })
+
+    return sortedSessionsByDistance
+  }
+
+  function handleDataClick(date: string): void {
+    const selectedSession = programacao.data?.sessions.find(
+      (session) => session?.date === date
+    )
+    const filteredSessions = selectedSession
+      ? groupSessoes([selectedSession.sessions])
+      : []
+    setFilteredSessions(filteredSessions)
+    setSelectedDate(date)
+  }
+  useEffect(() => {
+    setSelectedDate(new Date().toISOString().split('T')[0])
+  }, [])
+
+  function formatarHora(hora: string): string {
+    return hora?.slice(0, 5)
+  }
   return (
     <section className={s.AreaIngresso}>
       <div className="container">
         <h2>Comprar Ingressos</h2>
         <div className={s.gridIngressos}>
-          <select value={estadoSelecionado} onChange={handleEstadoChange}>
-            <option disabled value="">
-              Estado
-            </option>
-            {estadosUnicos.map((estado) => (
-              <option key={estado} value={estado}>
-                {estado}
-              </option>
-            ))}
+          <select
+            value={state}
+            onChange={({ target }: ChangeEvent<HTMLSelectElement>) =>
+              setState(target.value)
+            }
+          >
+            <option value="">Estado</option>
+            {localFilmes.data
+              ?.sort((a, b) => a.state.localeCompare(b.state))
+              ?.map((data) => (
+                <option key={data.state} value={data.state}>
+                  {obterNomeEstado(data.state)}
+                </option>
+              ))}
           </select>
-          <select>
-            <option disabled value="">
-              Cidade
-            </option>
-            {cidades.map((cidade, index) => (
-              <option key={index} value={cidade}>
-                {cidade}
-              </option>
-            ))}
+          <select
+            value={cities}
+            onChange={({ target }: ChangeEvent<HTMLSelectElement>) =>
+              setCities(target.value)
+            }
+          >
+            <option value="">Cidade</option>
+            {localFilmes.data &&
+              localFilmes.data
+                .find((item) => item.state === state)
+                ?.cities.slice()
+                .sort((a, b) => a.localeCompare(b))
+                .map((city: string) => (
+                  <option key={city} value={city}>
+                    {city}
+                  </option>
+                ))}
           </select>
         </div>
-        <h3 className={s.tituloData}>Selecione a data</h3>
-        <div className={s.gridDatas}>
-          <button>Quinta 11 Jan</button>
-          <button>Quinta 12 Jan</button>
-          <button>Quinta 13 Jan</button>
-        </div>
-        <div className={s.areaCinema}>
-          <div className={s.gridCinemas}>
-            <div>
-              <h2>Cinépolis Jardim Pamplona </h2>
-              <p>Rua Pamplona, 1704, São Paulo - SP</p>
+        {programacao.isLoading && <ReactLoading type="bubbles" color="#000" />}
+        {!programacao.isLoading && (
+          <>
+            <h3 className={s.tituloData}>Selecione a data</h3>
+            <div className={s.gridDatas}>
+              {programacao.data?.sessions.map((data) => (
+                <button
+                  key={data.date}
+                  onClick={() => handleDataClick(data.date)}
+                >
+                  {formatDiaDaSemana(data.date)}
+                  &nbsp;{formatDia(data.date)}&nbsp;
+                  {formatMes(data.date)}
+                </button>
+              ))}
             </div>
-            <a href="" className={s.map} aria-label="Local">
-              <FaMapMarkerAlt />
-            </a>
-          </div>
-          <div className={s.gridHoras}>
-            <div>
-              <h3>salas</h3>
-              <a href="http://">13:45</a>
-              <a href="">18:35</a>
-            </div>
-            <div>
-              <h3>salas</h3>
-              <a href="http://">13:45</a>
-              <a href="">18:35</a>
-            </div>
-          </div>
-          <a href="" className={s.map} aria-label="Local">
-            <FaMapMarkerAlt />
-          </a>
-        </div>
+            {filteredSessions &&
+              filteredSessions.map((session, key) => (
+                <div className={s.areaCinema} key={key + 1}>
+                  <div className={s.gridCinemas}>
+                    <div>
+                      <h2>{session.theaterName}</h2>
+                      <p>
+                        {session.address}, {session.number} <br />
+                        {session.addressComplement}, {session.city} {' - '}
+                        {session.state}
+                      </p>
+                    </div>
+                    <a
+                      href={`https://maps.google.com/?q=${session.lat},${session.lng}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className={s.map}
+                      aria-label="Local"
+                    >
+                      <FaMapMarkerAlt />
+                    </a>
+                  </div>
+                  <div className={s.gridHoras}>
+                    <div>
+                      <h3>Salas</h3>
+                      {session?.hours
+                        ?.sort((a, b) => a.hour.localeCompare(b.hour))
+                        ?.map((hour, i) => (
+                          <a
+                            key={1 + i}
+                            href={hour?.links}
+                            target="_blank"
+                            rel="noreferrer"
+                          >
+                            {formatarHora(hour?.hour)}
+                          </a>
+                        ))}
+                    </div>
+                  </div>
+                  <a
+                    href={`https://maps.google.com/?q=${session.lat},${session.lng}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className={s.map}
+                    aria-label="Local"
+                  >
+                    <FaMapMarkerAlt />
+                  </a>
+                </div>
+              ))}
+          </>
+        )}
       </div>
     </section>
   )

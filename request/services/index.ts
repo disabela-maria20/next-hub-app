@@ -1,15 +1,27 @@
-import { IEstados } from '../models'
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import axios from 'axios'
 
-export const getEstados: () => Promise<IEstados[]> = async () => {
-  const res = await axios.get(
-    `${process.env.ENDPOINT_ESTADOS_CIDADES}${process.env.FILME_ID}`
-  )
+axios.defaults.baseURL = process.env.API_URL
+axios.defaults.headers.common['token'] = process.env.API_TOKEN
 
-  return res.data.estados
+export async function getFilme(slug: string) {
+  const res = await axios.get(`/movie/get/${slug}`)
+  return res.data
+}
+
+export async function getSession(slug: string, city: string) {
+  const res = await axios.get(`/session/get/${slug}?city=${city}`)
+  return res.data
+}
+
+export async function getLocation(slug: string) {
+  const res = await axios.get(`/session/location/${slug}`)
+  return res.data
 }
 
 export const Sessoes = {
-  Estados: getEstados
+  getFilme,
+  getSession,
+  getLocation
 }
