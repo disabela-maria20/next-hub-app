@@ -52,6 +52,7 @@ const Ingressos = () => {
     },
     enabled: !!cities
   })
+
   const calculateDistance = (lat2: number, lon2: number) => {
     const lat1 = location.latitude
     const lon1 = location.longitude
@@ -60,7 +61,7 @@ const Ingressos = () => {
       return 0
     }
 
-    const R = 6371
+    const R = 6371 // Raio da Terra em quilômetros
     const dLat = ((lat2 - lat1) * Math.PI) / 180
     const dLon = ((lon2 - lon1) * Math.PI) / 180
     const a =
@@ -116,6 +117,7 @@ const Ingressos = () => {
   }
 
   function handleDataClick(date: string): void {
+    setSelectedDate(date)
     const selectedSession = programacao.data?.sessions.find(
       (session) => session?.date === date
     )
@@ -123,15 +125,33 @@ const Ingressos = () => {
       ? groupSessoes([selectedSession.sessions])
       : []
     setFilteredSessions(filteredSessions)
-    setSelectedDate(date)
   }
+
   useEffect(() => {
     setSelectedDate(new Date().toISOString().split('T')[0])
   }, [])
 
+  useEffect(() => {
+    if (programacao.data) {
+      const getDate = programacao.data.sessions.find(
+        (session) => session?.date === selectedDate
+      )
+      if (getDate) {
+        setFilteredSessions(groupSessoes([getDate.sessions]))
+      } else {
+        setSelectedDate(programacao.data.sessions[0]?.date)
+        setFilteredSessions(
+          groupSessoes([programacao.data.sessions[0]?.sessions])
+        )
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedDate, location, programacao.data])
+
   function formatarHora(hora: string): string {
     return hora?.slice(0, 5)
   }
+
   return (
     <section className={s.AreaIngresso}>
       <div className="container">
@@ -172,19 +192,21 @@ const Ingressos = () => {
           </select>
         </div>
         {programacao.isLoading && <ReactLoading type="bubbles" color="#000" />}
-        {!programacao.isLoading && (
+        {programacao.isSuccess && (
           <>
             <h3 className={s.tituloData}>Selecione a data</h3>
             <div className={s.gridDatas}>
               {programacao.data?.sessions.map((data) => (
-                <button
-                  key={data.date}
-                  onClick={() => handleDataClick(data.date)}
-                >
-                  {formatDiaDaSemana(data.date)}
-                  &nbsp;{formatDia(data.date)}&nbsp;
-                  {formatMes(data.date)}
-                </button>
+                <section key={data.date}>
+                  <button
+                    className={selectedDate === data.date ? s.active : ''}
+                    onClick={() => handleDataClick(data.date)}
+                  >
+                    {formatDiaDaSemana(data.date)}
+                    &nbsp;{formatDia(data.date)}&nbsp;
+                    {formatMes(data.date)}
+                  </button>
+                </section>
               ))}
             </div>
             {filteredSessions &&
@@ -196,7 +218,8 @@ const Ingressos = () => {
                       <p>
                         {session.address}, {session.number} <br />
                         {session.addressComplement}, {session.city} {' - '}
-                        {session.state}
+                        {session.state} - &nbsp;
+                        {session.distance.toFixed(2) + 'km'}
                       </p>
                     </div>
                     <a
