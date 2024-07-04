@@ -18,11 +18,6 @@ import { useQuery } from '@tanstack/react-query'
 
 import { Loading } from '..'
 
-import 'swiper/css'
-import 'swiper/css/pagination'
-
-import './styles.css'
-
 const Ingressos = () => {
   const [filteredSessions, setFilteredSessions] = useState<Sessions[]>([])
   const [selectedDate, setSelectedDate] = useState<string | null>(null)
