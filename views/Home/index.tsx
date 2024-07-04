@@ -11,12 +11,14 @@ import { Ingressos, Loading, Video } from '@/componentes'
 import { IFilmeProps } from '@/request/models'
 import { Sessoes } from '@/request/services'
 import { useFormatarData } from '@/utils/hooks/useFormatarData'
+import useIsMobile from '@/utils/hooks/useIsMobile'
 import { useQuery } from '@tanstack/react-query'
 
 const Home = () => {
   const [open, setOpen] = useState<boolean>()
 
   const { converterParaHorasEMinutos } = useFormatarData()
+  const { isMobile } = useIsMobile()
 
   const filme = useQuery<IFilmeProps>({
     queryKey: ['filmes'],
@@ -32,7 +34,14 @@ const Home = () => {
       {filme.isSuccess && (
         <>
           <section className={s.areaBanner}>
-            <img src={filme.data?.movie.bannerDesktop} className={s.banner} />
+            <img
+              src={
+                isMobile
+                  ? filme.data?.movie.bannerMobile
+                  : filme.data?.movie.bannerDesktop
+              }
+              className={s.banner}
+            />
             <div className={s.flex}>
               <img src={INFOFILMES.logo} />
               <h1>Deadpool e Wolverine retornam ao cinema.</h1>

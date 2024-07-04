@@ -4,11 +4,15 @@
   transition: all .4s;
 
   .banner {
-    max-height: 550px;
+    height: 750px;
     object-fit: cover;
     object-position: right;
     z-index: -1;
     position: relative;
+
+    @include media(lg){
+      width: 450px;
+    }
   }
 
   .flex {

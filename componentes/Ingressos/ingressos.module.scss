@@ -1,5 +1,6 @@
 .AreaIngresso {
   padding: 45px 0;
+  overflow-x: hidden;
 
   h2 {
     font-family: Supra-XLightMezzo, serif;
@@ -29,7 +30,7 @@
       background-image: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4NCjwhLS0gVXBsb2FkZWQgdG86IFNWRyBSZXBvLCB3d3cuc3ZncmVwby5jb20sIEdlbmVyYXRvcjogU1ZHIFJlcG8gTWl4ZXIgVG9vbHMgLS0+Cjxzdmcgd2lkdGg9IjgwMHB4IiBoZWlnaHQ9IjgwMHB4IiB2aWV3Qm94PSIwIC0wLjUgMTcgMTciIHZlcnNpb249IjEuMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayIgY2xhc3M9InNpLWdseXBoIHNpLWdseXBoLXRyaWFuZ2xlLWRvd24iPg0KICAgIA0KICAgIDx0aXRsZT4xMjM3PC90aXRsZT4NCiAgICANCiAgICA8ZGVmcz4KDTwvZGVmcz4NCiAgICA8ZyBzdHJva2U9Im5vbmUiIHN0cm9rZS13aWR0aD0iMSIgZmlsbD0ibm9uZSIgZmlsbC1ydWxlPSJldmVub2RkIj4NCiAgICAgICAgPHBhdGggZD0iTTEwLjEwNiwxMi42OSBDOS41MjUsMTMuMjcgOC41ODQsMTMuMjcgOC4wMDIsMTIuNjkgTDEuNTYxLDYuMjQ2IEMwLjk3OSw1LjY2NSAwLjcyMiw0LjE0MyAyLjU2MSw0LjE0MyBMMTUuNTQ5LDQuMTQzIEMxNy40NSw0LjE0MyAxNy4xMzEsNS42NjQgMTYuNTQ5LDYuMjQ2IEwxMC4xMDYsMTIuNjkgTDEwLjEwNiwxMi42OSBaIiBmaWxsPSIjMDA3YmJkIiBjbGFzcz0ic2ktZ2x5cGgtZmlsbCI+Cg08L3BhdGg+DQogICAgPC9nPg0KPC9zdmc+);
       background-repeat: no-repeat;
       background-position: right 1rem top 50%;
-      background-size:1rem auto;
+      background-size: 1rem auto;
     }
   }
 
@@ -44,6 +45,8 @@
     display: flex;
     gap: 10px;
     padding: 20px 0;
+    overflow-x: auto;
+    scrollbar-width: none;
 
     button {
       font-family: Supra-Mediummezzo, serif;
@@ -54,6 +57,8 @@
       font-size: 1.4rem;
       border-radius: 10px;
       cursor: pointer;
+      flex: 0 0 auto;
+
       &.active {
         background-color: $secondary-colors;
       }
@@ -63,6 +68,7 @@
   .areaCinema {
     border-bottom: 1px solid $primary-color-gray;
     padding: 45px 0;
+
     @include media(lg) {
       display: grid;
       grid-template-columns: .5fr 1fr 0.1fr;

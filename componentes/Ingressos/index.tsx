@@ -18,6 +18,11 @@ import { useQuery } from '@tanstack/react-query'
 
 import { Loading } from '..'
 
+import 'swiper/css'
+import 'swiper/css/pagination'
+
+import './styles.css'
+
 const Ingressos = () => {
   const [filteredSessions, setFilteredSessions] = useState<Sessions[]>([])
   const [selectedDate, setSelectedDate] = useState<string | null>(null)
@@ -196,16 +201,15 @@ const Ingressos = () => {
             <h3 className={s.tituloData}>Selecione a data</h3>
             <div className={s.gridDatas}>
               {programacao.data?.sessions.map((data) => (
-                <section key={data.date}>
-                  <button
-                    className={selectedDate === data.date ? s.active : ''}
-                    onClick={() => handleDataClick(data.date)}
-                  >
-                    {formatDiaDaSemana(data.date)}
-                    &nbsp;{formatDia(data.date)}&nbsp;
-                    {formatMes(data.date)}
-                  </button>
-                </section>
+                <button
+                  key={data.date}
+                  className={selectedDate === data.date ? s.active : ''}
+                  onClick={() => handleDataClick(data.date)}
+                >
+                  {formatDiaDaSemana(data.date)}
+                  &nbsp;{formatDia(data.date)}&nbsp;
+                  {formatMes(data.date)}
+                </button>
               ))}
             </div>
             {filteredSessions &&
