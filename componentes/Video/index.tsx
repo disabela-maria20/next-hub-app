@@ -1,6 +1,6 @@
 import s from './video.module.scss'
 
-const Video = ({ url }: { url: string }) => {
+const Video = ({ url }: { url: string | undefined }) => {
   return (
     <div className={s.videoContainer}>
       <iframe

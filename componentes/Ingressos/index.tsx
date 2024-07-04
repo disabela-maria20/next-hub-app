@@ -1,10 +1,7 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client'
 
 import { ChangeEvent, useEffect, useState } from 'react'
 import { FaMapMarkerAlt } from 'react-icons/fa'
-import ReactLoading from 'react-loading'
 
 import s from './ingressos.module.scss'
 
@@ -19,6 +16,8 @@ import { useLocationContext } from '@/utils/Context/Location'
 import { useFormatarData } from '@/utils/hooks/useFormatarData'
 import { useQuery } from '@tanstack/react-query'
 
+import { Loading } from '..'
+
 const Ingressos = () => {
   const [filteredSessions, setFilteredSessions] = useState<Sessions[]>([])
   const [selectedDate, setSelectedDate] = useState<string | null>(null)
@@ -27,7 +26,7 @@ const Ingressos = () => {
   const [cities, setCities] = useState<string>('')
 
   const { formatDia, formatMes, formatDiaDaSemana } = useFormatarData()
-  const { location, loading, locationArea } = useLocationContext()
+  const { location } = useLocationContext()
 
   const localFilmes = useQuery<Locais[], Error>({
     queryKey: ['estados'],
@@ -191,7 +190,7 @@ const Ingressos = () => {
                 ))}
           </select>
         </div>
-        {programacao.isLoading && <ReactLoading type="bubbles" color="#000" />}
+        {programacao.isLoading && <Loading />}
         {programacao.isSuccess && (
           <>
             <h3 className={s.tituloData}>Selecione a data</h3>

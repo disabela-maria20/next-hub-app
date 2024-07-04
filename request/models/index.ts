@@ -10,7 +10,7 @@ export interface IFilmeResponse extends IFilmeProps {
   countryOrigin: string
   contentRating: string
   banner_logo: string
-  duration: number
+  duration: number | undefined
   synopsis: string
   shortSynopsis: string
   cast: string

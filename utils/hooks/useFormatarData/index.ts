@@ -132,6 +132,14 @@ export const useFormatarData = () => {
       dataAtual.getFullYear() === dataEstreia.getFullYear()
     )
   }
+
+  function converterParaHorasEMinutos(totalMinutos: number) {
+    const horas = Math.floor(totalMinutos / 60)
+    const minutos = totalMinutos % 60
+
+    return `${horas}h e ${minutos}min`
+  }
+
   return {
     formatarData,
     formatDia,
@@ -141,6 +149,7 @@ export const useFormatarData = () => {
     formatMesmaSemana,
     formatfaltaUmaSemanaParaDataMarcada,
     formatPassouUmaSemanaDesdeData,
-    formatDataEstreia
+    formatDataEstreia,
+    converterParaHorasEMinutos
   }
 }
